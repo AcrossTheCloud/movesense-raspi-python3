@@ -20,14 +20,14 @@ Open terminal on Raspbian, then follow instructions by typing commands to termin
     
     `sudo python3 -m pip install pybluez`
     
-    `sudo python3 -m pip instal configparser`
+    `sudo python3 -m pip install configparser`
     
 
 * Clone movesense-raspi-gateway repository
-    `git clone https://bitbucket.org/suunto/private-movesense-raspi-python3`
+    `git clone https://bitbucket.org/suunto/movesense-raspi-python3`
 
-* Enter to movesense-raspi-gateway's setup directory
-    `cd movesense-raspi-gateway/setup/`
+* Enter to movesense-raspi-python3's setup directory
+    `cd movesense-raspi-python3/setup/`
 
 * On setup directory, run installation script:
     `sudo ./install.sh`
@@ -35,7 +35,7 @@ Open terminal on Raspbian, then follow instructions by typing commands to termin
 
 ## Configuration
 
-Movesense-raspi-gateway's configuration file will be write by install.sh to /etc/blegateway.cnf
+Movesense-raspi-python3's configuration file will be written by install.sh to /etc/blegateway.cnf
 Define configuration with your favorit editor.
 
 
