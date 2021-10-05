@@ -56,17 +56,14 @@ def deserialized_data(pkt):
     packet_count = (pkt[26])
     #MAC address
     bt_addr = ''.join("{0:02x}".format(x) for x in pkt[12:6:-1])
-    #exctact float from the adv packet
-    float1 = struct.unpack(">f", (pkt[37:33:-1]))
-    #1-wire temperature
-    float1_val = float1[0]
     #extract float from the adv packet
-    float2 = struct.unpack(">f", (pkt[33:29:-1]))
-    #activity level integer
+    float1 = struct.unpack(">f", (pkt[33:29:-1]))
+    float1_val = float1[0]
+    #exctact float from the adv packet
+    float2 = struct.unpack(">f", (pkt[37:33:-1]))
     float2_val = float2[0]
     #extract float from the adv packet
     float3 = struct.unpack(">f", (pkt[41:37:-1]))
-    #device temperature in celcius
     float3_val = float3[0]
     #rssi info
     rssi = (pkt[-1])
