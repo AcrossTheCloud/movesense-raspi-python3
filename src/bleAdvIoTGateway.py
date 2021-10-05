@@ -57,26 +57,26 @@ def deserialized_data(pkt):
     #MAC address
     bt_addr = ''.join("{0:02x}".format(x) for x in pkt[12:6:-1])
     #exctact float from the adv packet
-    one_temp = struct.unpack(">f", (pkt[37:33:-1]))
+    float1 = struct.unpack(">f", (pkt[37:33:-1]))
     #1-wire temperature
-    one_temp_val = one_temp[0]
+    float1_val = float1[0]
     #extract float from the adv packet
-    act = struct.unpack(">f", (pkt[33:29:-1]))
+    float2 = struct.unpack(">f", (pkt[33:29:-1]))
     #activity level integer
-    inten_val = int(act[0])
+    float2_val = float2[0]
     #extract float from the adv packet
-    dev_temp = struct.unpack(">f", (pkt[41:37:-1]))
+    float3 = struct.unpack(">f", (pkt[41:37:-1]))
     #device temperature in celcius
-    dev_temp_val = dev_temp[0] - 274.15
+    float3_val = float3[0]
     #rssi info
     rssi = (pkt[-1])
 
     ts = (datetime.datetime.now()-datetime.datetime(1970,1,1)).total_seconds()
     payload_data = {"deviceMac":bt_addr,
                     "counter":packet_count,
-                    "temp1":one_temp_val,
-                    "activity":inten_val,
-                    "temp2":dev_temp_val,
+                    "float1":float1_val,
+                    "float2":float2_val,
+                    "float3":float3_val,
                     "Timestamp":ts}
     return payload_data
 
