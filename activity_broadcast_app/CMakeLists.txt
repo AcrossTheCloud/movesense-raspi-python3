@@ -10,10 +10,5 @@ if(NOT IS_ABSOLUTE ${MOVESENSE_CORE_LIBRARY})
     set(MOVESENSE_CORE_LIBRARY ${CMAKE_BINARY_DIR}/${MOVESENSE_CORE_LIBRARY})
 endif()
 
-# Create a list with all the modules
-if(NOT DEFINED MOVESENSE_MODULES)
-    list(APPEND MOVESENSE_MODULES ${CMAKE_CURRENT_LIST_DIR}/../../../movesense-modules/modules/rr_from_ecg/)
-endif()
-
 include(${MOVESENSE_CORE_LIBRARY}/MovesenseFromStaticLib.cmake REQUIRED)
 

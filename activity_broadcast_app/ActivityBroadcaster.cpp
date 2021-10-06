@@ -74,7 +74,7 @@ bool ActivityBroadcaster::startModule()
     mModuleState = WB_RES::ModuleStateValues::STARTED;
     DEBUGLOG("=============================================================================");
     DEBUGLOG("                        Module Start-up");
-    asyncPut(WB_RES::LOCAL::UI_IND_VISUAL(), AsyncRequestOptions::Empty, 1);
+    asyncPut(WB_RES::LOCAL::UI_IND_VISUAL(), AsyncRequestOptions::Empty, WB_RES::VisualIndTypeValues::SHORT_VISUAL_INDICATION);
 
     asyncSubscribe(WB_RES::LOCAL::MEAS_ACC_SAMPLERATE(), AsyncRequestOptions::Empty, (int32_t)ACC_SAMPLERATE);
     asyncSubscribe(WB_RES::LOCAL::MEAS_HR());
@@ -169,22 +169,22 @@ void ActivityBroadcaster::publishResults(float motionIntensityFiltered) {
     mPublishCounter++;
 
     uint8_t *pDataBytes = reinterpret_cast<uint8_t*>(&mPublishCounter);
-    for (int i=0;i<sizeof(mPublishCounter); i++) {
+    for (unsigned int i=0;i<sizeof(mPublishCounter); i++) {
         s_customAvertiseData[s_dataCounterIndex + i] = *pDataBytes++;
     }
 
     pDataBytes = reinterpret_cast<uint8_t*>(&motionIntensityFiltered);
-    for (int i=0;i<sizeof(motionIntensityFiltered); i++) {
+    for (unsigned int i=0;i<sizeof(motionIntensityFiltered); i++) {
         s_customAvertiseData[s_dataPayloadIndex + i] = *pDataBytes++;
     }
 
     pDataBytes = reinterpret_cast<uint8_t*>(&hrAverage);
-    for (int i=0;i<sizeof(hrAverage); i++) {
+    for (unsigned int i=0;i<sizeof(hrAverage); i++) {
         s_customAvertiseData[s_dataPayloadIndex + 4 + i] = *pDataBytes++;
     }
 	
 	pDataBytes = reinterpret_cast<uint8_t*>(&maxIntensity);
-    for (int i=0;i<sizeof(maxIntensity); i++) {
+    for (unsigned int i=0;i<sizeof(maxIntensity); i++) {
         s_customAvertiseData[s_dataPayloadIndex + 8 + i] = *pDataBytes++;
     }
 /*
@@ -206,15 +206,15 @@ float ActivityBroadcaster::filterMotionIntensity(float signalIn)
 {
     // IIR filter by https://www-users.cs.york.ac.uk/~fisher/cgi-bin/mkfscript
     // Butterworth LowPass, SR=52Hz, Corner 0.35Hz, 2nd order
-#define NZEROS 2
-#define NPOLES 2
-#define GAIN   2.303714081e+03
+#define NZEROS1 2
+#define NPOLES1 2
+#define GAIN1   2.303714081e+03
 
-    static float xv[NZEROS+1], yv[NPOLES+1];
+    static float xv[NZEROS1+1], yv[NPOLES1+1];
 
     xv[0] = xv[1];
     xv[1] = xv[2];
-    xv[2] = signalIn / GAIN;
+    xv[2] = signalIn / GAIN1;
     yv[0] = yv[1];
     yv[1] = yv[2];
     yv[2] =   (xv[0] + xv[2]) + 2 * xv[1]

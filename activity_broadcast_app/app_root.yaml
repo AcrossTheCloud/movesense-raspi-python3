@@ -18,9 +18,3 @@ executionContexts:
     numberOfResponses: 10
     stackSize: 768
     priority: normal
-
-
-apis:
-  AlgoECGRR.*:
-    apiId: 101
-    defaultExecutionContext: meas

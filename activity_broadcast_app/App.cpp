@@ -1,15 +1,13 @@
 #include "ActivityBroadcaster.h"
-#include "ECGBasedRRService.h"
 #include "movesense.h"
 
 MOVESENSE_APPLICATION_STACKSIZE(1024)
 
-MOVESENSE_PROVIDERS_BEGIN(2)
+MOVESENSE_PROVIDERS_BEGIN(1)
 
-MOVESENSE_PROVIDER_DEF(ECGBasedRRService)
 MOVESENSE_PROVIDER_DEF(ActivityBroadcaster)
 
-MOVESENSE_PROVIDERS_END(2)
+MOVESENSE_PROVIDERS_END(1)
 
 MOVESENSE_FEATURES_BEGIN()
 // Explicitly enable or disable Movesense framework core modules.
