@@ -48,3 +48,6 @@ Thumbs.db
 *.mov
 *.wmv
 
+# service key files
+src/*.json
+.vscode/*
