@@ -9,7 +9,7 @@ import io
 import struct
 import json
 from DataStore_FirebaseRT import DataStore_FirebaseRT
-from BleAdvScanner import BleAdvScanner
+
 import uuid
 import base64
 
@@ -19,6 +19,10 @@ from multiprocessing.dummy import Pool
 import asyncio
 
 from BleAdvScanner import COMPANY_ID
+
+from BleAdvScanner import BleAdvScanner
+from GpsdDataSource import GpsdDataSource
+
 
 pool = Pool(2)
 global dataArray
@@ -42,13 +46,41 @@ def on_success(r):
         # Add handling for unsuccessful post here
         print(r)
 
-async def callback(deviceid: str, rssi, manuf_data):
+async def gps_callback(timestamp, lat, lon, speed, alt):
     global dataArray
     global dataArray2
     global lastReceivedPacketNumber
-    #print("callback called: ", deviceid, ", rssi: ", rssi)
+    #print("ble_callback called: ", deviceid, ", rssi: ", rssi)
 
-    payload=deserialized_data(manuf_data)
+    payload = {}
+    payload["source"]="gps"
+
+    # add values to payload
+    payload["Timestamp"] = timestamp
+    payload["lat"]=lat
+    payload["lon"]=lon
+    if speed:
+        payload["speed"]=speed
+    if alt:
+        payload["alt"]=alt
+
+    #print("GPS data update: ", payload)
+
+    # try to send the gps update.
+    try:
+        # iterate over list copy ([:])
+        await storage.push_data(payload)
+    except Exception as ex:
+        print("GPS send failed:", ex )
+
+
+async def ble_callback(deviceid: str, rssi, manuf_data):
+    global dataArray
+    global dataArray2
+    global lastReceivedPacketNumber
+    #print("ble_callback called: ", deviceid, ", rssi: ", rssi)
+
+    payload=deserialize_manuf_data(manuf_data)
     if not payload:
         return
 
@@ -59,8 +91,7 @@ async def callback(deviceid: str, rssi, manuf_data):
     # add deviceId and rssi to payload
     payload["deviceId"]=deviceid
     payload["rssi"]=rssi
-
-    print("payload: ", payload)
+    #print("BLE payload: ", payload)
 
     # store last counter value for duplicate rejection:
     lastReceivedPacketNumber[deviceid] = payload["counter"]
@@ -88,7 +119,7 @@ async def callback(deviceid: str, rssi, manuf_data):
         
 
 
-def deserialized_data(manuf_data):
+def deserialize_manuf_data(manuf_data):
     
     # skip if no Amer companyID in manuf data
     if not COMPANY_ID in manuf_data or manuf_data[COMPANY_ID][0] != 255:
@@ -108,7 +139,6 @@ def deserialized_data(manuf_data):
     #extract float from the adv packet
     float3 = struct.unpack("<f", (manuf_data[13:17]))[0]
 
-    
     # get the timestamp
     dt = datetime.now()
     ts = datetime.timestamp(dt)
@@ -177,8 +207,13 @@ async def main(argv):
     
     bthci = config['bluetooth']['hci']
 
-    scanner = BleAdvScanner(callback, bt_device_id=int(bthci))
-    await scanner.start()
+    ble_scanner = BleAdvScanner(ble_callback, bt_device_id=int(bthci))
+    await ble_scanner.start()
+
+    # Create GPS datasource
+    global gps_datasource
+    gps_datasource = GpsdDataSource(gps_callback)
+    gps_datasource.start()
 
     # Run forever
     #while (1):
@@ -191,7 +226,7 @@ async def main(argv):
     finally:
         print("Finishing operation")
 
-    await scanner.stop()
+    await ble_scanner.stop()
     if storage:
         # send remainder of the collected data
         try:
