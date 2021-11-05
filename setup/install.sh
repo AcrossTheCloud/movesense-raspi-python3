@@ -117,19 +117,19 @@ sleep 2
 
 # OLD STUFF
 # Reset interface
-# sudo hciconfig \$hci reset
+sudo hciconfig hci0 reset
 
 # Turn adv mode on and off
-#sudo hciconfig \$hci leadv
-#sleep 5
-#sudo hciconfig \$hci noleadv
-#sleep 2
+sudo hciconfig hci0 leadv
+sleep 5
+sudo hciconfig hci0 noleadv
+sleep 2
 
 # Scan a while (looks like this is important somehow)
-#sudo hcitool -i \$hci lescan --duplicates &
-#sleep 2
+sudo hcitool -i hci0 lescan --duplicates &
+sleep 2
 # Then kill scanning
-#sudo killall -9 hcitool
+sudo killall -9 hcitool
 # OLD STUFF ENDS
 
 # Finally launch ble gateway
