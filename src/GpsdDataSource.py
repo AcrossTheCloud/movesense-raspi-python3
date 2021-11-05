@@ -62,6 +62,6 @@ class GpsdDataSource(threading.Thread):
                 pos_fix = self.session.next()
                 #print("GPSD pos fix: ", pos_fix)
                 self.call_callback(pos_fix)
-                time.sleep(1.0)  # tune this, you might not get values that quickly
+                time.sleep(2.0)  # tune this, you might not get values that quickly
         except StopIteration:
             pass

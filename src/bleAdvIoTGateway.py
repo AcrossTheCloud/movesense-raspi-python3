@@ -18,11 +18,13 @@ import copy
 from multiprocessing.dummy import Pool
 import asyncio
 
-from BleAdvScanner import COMPANY_ID
 
-from BleAdvScanner import BleAdvScanner
+from BleAdvScanner_BlueZ import BleAdvScanner_BlueZ
+from BleAdvScanner_Bleak import BleAdvScanner_Bleak
+
 from GpsdDataSource import GpsdDataSource
 
+BLE_COMPANY_ID = 159
 
 pool = Pool(2)
 global dataArray
@@ -107,10 +109,11 @@ async def ble_callback(deviceid: str, rssi, manuf_data):
     # try to send every 10 received packets
     # If there is a connection, the send happens after 10 received packets.
     if (len(dataArray2) >= 10) and (len(dataArray) == 0):
-        print("trying to send ", len(dataArray2), " notifications")
+        #print("trying to send ", len(dataArray2), " notifications")
         try:
             # iterate over list copy ([:])
             for d in dataArray2[:]:
+                #print("send data packet #", d['counter'])
                 await storage.push_data(d)
                 dataArray2.remove(d) # remove if successful
 
@@ -120,13 +123,22 @@ async def ble_callback(deviceid: str, rssi, manuf_data):
 
 
 def deserialize_manuf_data(manuf_data):
+    #print("deserialize_manuf_data: ", manuf_data)
     
     # skip if no Amer companyID in manuf data
-    if not COMPANY_ID in manuf_data or manuf_data[COMPANY_ID][0] != 255:
+    if not BLE_COMPANY_ID in manuf_data or manuf_data[BLE_COMPANY_ID][0] != 255:
+        #print("skipping... ")
         return None
-    
-    manuf_data = manuf_data[COMPANY_ID]
-    
+
+    #print("manuf_data[BLE_COMPANY_ID]: ", manuf_data[BLE_COMPANY_ID])
+
+    manuf_data = manuf_data[BLE_COMPANY_ID]
+
+    # Only handle packets with at least 17 bytes (4 x 32bit + 255 byte in beginning)
+    if len(manuf_data) < 17:
+        #print("skipping short data:", len(manuf_data))
+        return None
+
     #rolling packet count for detecting missing packets
     packet_count = struct.unpack("<I", (manuf_data[1:5]))[0]
 
@@ -148,7 +160,18 @@ def deserialize_manuf_data(manuf_data):
                     data3name:float3,
                     "Timestamp":ts}
     return payload_data
+global bthci
 
+def createBleAdvScanner():
+    # Choose optimal BLE scanner API. Linux Bleak seems to drop packets so use BlueZ implementation
+    if sys.platform.startswith('linux'):
+        ble_scanner = BleAdvScanner_BlueZ(ble_callback, bt_device_id=int(bthci))
+        print("BlueZ ble scanner created: ", ble_scanner)
+    else:
+        ble_scanner = BleAdvScanner_Bleak(ble_callback)
+        print("Bleak ble scanner created: ", ble_scanner)
+
+    return ble_scanner
 
 async def main(argv):
     global dataArray
@@ -161,6 +184,10 @@ async def main(argv):
 
     global storage
     storage = None
+
+    global bthci
+    bthci = 0
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--settingsFile', default='/etc/blegateway.cnf', help='Settings file (overrides all other parameters)')
@@ -183,6 +210,7 @@ async def main(argv):
         config['bluetooth']={}
         config['bluetooth']['hci'] = 0
 
+    bthci = config['bluetooth']['hci']
     if "firebaseio" in args.storageUrl:
         if not args.fbCredsFile:
             print("No --fbCredsFile given for firebase storage.")
@@ -198,16 +226,16 @@ async def main(argv):
     global data1name
     global data2name
     global data3name
+
+
     if args.data1name: 
         data1name = args.data1name
     if args.data2name: 
         data2name = args.data2name
     if args.data3name: 
         data3name = args.data3name
-    
-    bthci = config['bluetooth']['hci']
 
-    ble_scanner = BleAdvScanner(ble_callback, bt_device_id=int(bthci))
+    ble_scanner = createBleAdvScanner()
     await ble_scanner.start()
 
     # Create GPS datasource
