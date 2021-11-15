@@ -70,7 +70,7 @@ async def gps_callback(timestamp, lat, lon, speed, alt):
 
     # try to send the gps update.
     try:
-        # iterate over list copy ([:])
+        # Send the data payload to storage
         await storage.push_data(payload)
     except Exception as ex:
         print("GPS send failed:", ex )
@@ -98,28 +98,13 @@ async def ble_callback(deviceid: str, rssi, manuf_data):
     # store last counter value for duplicate rejection:
     lastReceivedPacketNumber[deviceid] = payload["counter"]
 
-    # and append to list
-    dataArray.append(payload)
+    try:
+        # Send data payload to storage
+        await storage.push_data(payload)
+
+    except Exception as ex:
+        print("BLE send failed:", ex )
     
-    # add to send queue after 10 received packets
-    if len(dataArray) >= 10:
-        dataArray2.extend(copy.deepcopy(dataArray))
-        dataArray = []
-
-    # try to send every 10 received packets
-    # If there is a connection, the send happens after 10 received packets.
-    if (len(dataArray2) >= 10) and (len(dataArray) == 0):
-        #print("trying to send ", len(dataArray2), " notifications")
-        try:
-            # iterate over list copy ([:])
-            for d in dataArray2[:]:
-                #print("send data packet #", d['counter'])
-                await storage.push_data(d)
-                dataArray2.remove(d) # remove if successful
-
-        except Exception as ex:
-            print("send failed:", ex )
-        
 
 
 def deserialize_manuf_data(manuf_data):

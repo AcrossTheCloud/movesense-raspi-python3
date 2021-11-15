@@ -30,7 +30,7 @@ class GpsdDataSource(threading.Thread):
         except Exception as ex:
             self.session = None
             print("Error initializing GPSD: ", ex)
-
+        self.GPS_DATA_INTERVAL_SEC = 5.0
         self.current_value = None
 
     def get_current_value(self):
@@ -58,10 +58,16 @@ class GpsdDataSource(threading.Thread):
     def run(self):
         print("GpsdDataSource.run() called.")
         try:
+            prev_send_ts = datetime.fromtimestamp(0)
             while self.session:
                 pos_fix = self.session.next()
+                ts = datetime.utcnow()
+                if (ts - prev_send_ts).total_seconds() >= self.GPS_DATA_INTERVAL_SEC:
+                    prev_send_ts = ts
+                    self.call_callback(pos_fix)
+
                 #print("GPSD pos fix: ", pos_fix)
-                self.call_callback(pos_fix)
-                time.sleep(2.0)  # tune this, you might not get values that quickly
+                # NOTE: No time.sleep() here so buffer in gpsd doesn't fill up with old fixes
         except StopIteration:
             pass
+    
