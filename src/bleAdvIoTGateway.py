@@ -137,6 +137,7 @@ def deserialize_manuf_data(manuf_data):
                     data3name:float3,
                     "Timestamp":ts}
     return payload_data
+
 global bthci
 
 def createBleAdvScanner():
