@@ -196,7 +196,7 @@ async def main(argv):
         config['bluetooth']['hci'] = 0
 
     bthci = config['bluetooth']['hci']
-    if "firebaseio" in args.storageUrl:
+    if "firebase" in args.storageUrl:
         if not args.fbCredsFile:
             print("No --fbCredsFile given for firebase storage.")
             return
