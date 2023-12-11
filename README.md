@@ -1,6 +1,6 @@
 ## Overview
 
-This is Movesense BLE advertisement message scanner for Raspbian.
+This is Movesense BLE advertisement message scanner for the Raspberry Pi (Raspbian / Ubuntu).
 
 
 ## Dependencies
