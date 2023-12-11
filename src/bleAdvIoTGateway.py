@@ -1,20 +1,12 @@
 import os
 import sys
-import time
 from datetime import datetime
 import argparse
 import configparser
-import requests
-import io
 import struct
-import json
+
 from DataStore_FirebaseRT import DataStore_FirebaseRT
 
-import uuid
-import base64
-
-import json
-import copy
 from multiprocessing.dummy import Pool
 import asyncio
 
