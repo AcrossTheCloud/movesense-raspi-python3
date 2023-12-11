@@ -135,7 +135,7 @@ def _bt_addr_to_string(addr):
     """Convert a binary string to the hex representation."""
     addr_str = array.array('B', addr)
     addr_str.reverse()
-    hex_str = hexlify(addr_str.tostring()).decode('ascii')
+    hex_str = hexlify(addr_str.tobytes()).decode('ascii')
     # insert ":" seperator between the bytes
     return ':'.join(a+b for a, b in zip(hex_str[::2], hex_str[1::2]))
 
