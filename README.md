@@ -17,7 +17,7 @@ The movesense-raspi-python3 gateway service talks to a [Google Firebase Realtime
 2. Select the project, then click Generate New Private Key, then confirm by clicking Generate Key.
 3. Copy the downloaded key to the Raspberry Pi as (you will need sudo to copy it to) `/etc/firebase_creds.json`, and `sudo chmod 0600 /etc/firebase_creds.json`.
 
-Edit the `install.sh` script to set the BLEADVIOTGATEWAY_STORAGEURL environment variable to point to the Firebase Realtime Database URL, and optionally set the BLEADVIOTGATEWAY_DBPATH
+After cloning this repository, edit the `install.sh` script to set the BLEADVIOTGATEWAY_STORAGEURL environment variable to point to the Firebase Realtime Database URL, and optionally set the BLEADVIOTGATEWAY_DBPATH
 
 Movesense-raspi-python3's configuration file will be written by install.sh to /etc/blegateway.cnf and the cloud variables to /etc/blegateway_cloud.cnf
 
@@ -30,13 +30,13 @@ Open a terminal on Raspbian / Ubuntu, then follow instructions by typing command
 ** Note that the `--break-system-packages` flag may be required to install using `sudo python3 -m pip install <package>`. 
 
     `sudo apt install libbluetooth-dev gpsd`
-    
+
     `sudo python3 -m pip install  git+https://github.com/AcrossTheCloud/pybluez.git#egg=pybluez`
-    
+
     `sudo python3 -m pip install configparser firebase_admin gps`
 
-    `sudo python3 -m pip install firebase_admin`
-    
+    `sudo python3 -m pip install bleak`
+
 
 * Clone movesense-raspi-gateway repository
     `git clone https://bitbucket.org/suunto/movesense-raspi-python3`
@@ -44,7 +44,7 @@ Open a terminal on Raspbian / Ubuntu, then follow instructions by typing command
 * Enter to movesense-raspi-python3's setup directory
     `cd movesense-raspi-python3/setup/`
 
-* Edit the 
+* Edit the install.sh script (per configuration section)
 
 * In the setup directory, run installation script:
     `sudo ./install.sh`
